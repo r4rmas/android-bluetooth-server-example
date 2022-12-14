@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothSocket
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.example.bluetoothserver.data.Message
 import java.io.IOException
 import java.util.*
 
@@ -14,7 +15,11 @@ import java.util.*
 class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, private val handler: Handler) : Thread() {
     private val TAG = "Pimienta"
     private val bServerS: BluetoothServerSocket? by lazy(LazyThreadSafetyMode.NONE) {
-        bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Bluetooth", UUID.fromString("f1473161-213d-4607-bd29-519b31206e63"))
+        bluetoothAdapter
+            .listenUsingInsecureRfcommWithServiceRecord(
+                "Bluetooth",
+                UUID.fromString("f1473161-213d-4607-bd29-519b31206e63")
+            )
     }
 
     override fun run() {
@@ -35,10 +40,10 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, private val h
 //                    val bluetoothService = BluetoothService(handler, it)
 //                    bluetoothService.start()
 //                    bServerS?.close()
-                    Log.w(TAG, "Se conectó mi estimado")
+                    bServerS?.close()
+                    Log.w(TAG, "Conectado!")
                     val bluetoothService = BluetoothService(handler, it)
                     bluetoothService.start()
-                    bServerS?.close()
 
                     shouldLoop = false
                 } catch (e: IOException) {
@@ -53,7 +58,7 @@ class AcceptThread(private val bluetoothAdapter: BluetoothAdapter, private val h
         try {
             bServerS?.close()
         } catch (e: IOException) {
-            Log.e("Bluetooth", "Could not close the connect socket", e)
+            Log.e(TAG, "Could not close the connect socket", e)
         }
     }
 }

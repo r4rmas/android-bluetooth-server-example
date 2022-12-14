@@ -5,11 +5,12 @@ import android.bluetooth.BluetoothSocket
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
+import com.example.bluetoothserver.data.Message
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-const val TAG = "Bluetooth"
+const val TAG = "Pimienta"
 
 // Defines several constants used when transmitting messages between the
 // service and the UI.
@@ -21,31 +22,36 @@ const val MESSAGE_TOAST: Int = 2
 class BluetoothService(private val handler: Handler, private val connectedSocket: BluetoothSocket) : Thread() {
     private val mmInStream: InputStream = connectedSocket.inputStream
     private val mmOutStream: OutputStream = connectedSocket.outputStream
-    private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
+    private val mmBuffer: ByteArray = ByteArray(26) // mmBuffer store for the stream
 
     @SuppressLint("MissingPermission")
     override fun run() {
-        var numBytes: Int // bytes returned from read()
+//        var numBytes: Int // bytes returned from read()
 
         // Keep listening to the InputStream until an exception occurs.
-        while (true) {
+        var i = 1
+        while (i < 2) {
             // Read from the InputStream.
-            numBytes = try {
-                Log.w("Pimienta", "Leyendo...")
+//            numBytes = try {
+            try {
+                Log.w(TAG, "Leyendo...")
                 mmInStream.read(mmBuffer)
             } catch (e: IOException) {
                 Log.d(TAG, "Input stream was disconnected", e)
-                break
+//                break
             }
 
-            mmBuffer.map { Log.i("Pimienta", it.toString()) }
+            val message = Message.parseFrom(mmBuffer)
+//            val message = Message.newBuilder(Message.parseFrom(mmBuffer)).build()
+            Log.i(TAG, message.content)
 
             // Send the obtained bytes to the UI activity.
-            val readMsg = handler.obtainMessage(
-                MESSAGE_READ, numBytes, -1,
-                mmBuffer
-            )
-            readMsg.sendToTarget()
+//            val readMsg = handler.obtainMessage(
+//                MESSAGE_READ, numBytes, -1,
+//                mmBuffer
+//            )
+//            readMsg.sendToTarget()
+            i++
         }
     }
 
